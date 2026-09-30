@@ -1,0 +1,45 @@
+# File Burger — Docker Compose
+#
+# Base usage (app only, zero external dependencies):
+#   docker compose up --build
+#
+# Optional services are gated behind profiles:
+#   docker compose --profile redis up --build              # + Redis
+#   docker compose --profile redis --profile turn up --build  # + Redis + TURN
+
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-}
+      # Enable when using the redis profile below:
+      - REDIS_URL=${REDIS_URL:-}
+      - SESSION_TTL_HOURS=${SESSION_TTL_HOURS:-6}
+      - NEXT_PUBLIC_TURN_URLS=${NEXT_PUBLIC_TURN_URLS:-}
+      - NEXT_PUBLIC_TURN_USERNAME=${NEXT_PUBLIC_TURN_USERNAME:-}
+      - NEXT_PUBLIC_TURN_CREDENTIAL=${NEXT_PUBLIC_TURN_CREDENTIAL:-}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # Ephemeral: transfer metadata only, never file contents.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    profiles: ["redis"]
+    restart: unless-stopped
+
+  turn:
+    image: coturn/coturn:latest
+    network_mode: host
+    profiles: ["turn"]
+    command:
+      - "-n"
+      - "--realm=fileburger"
+      - "--use-auth-secret"
+      - "--static-auth-secret=${TURN_AUTH_SECRET:-change-me}"
+      - "--min-port=49152"
+      - "--max-port=65535"
+      - "--no-cli"
+    restart: unless-stopped

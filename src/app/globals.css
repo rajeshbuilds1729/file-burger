@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1714;
+  --card: #ffffff;
+  --card-foreground: #1a1714;
+  --muted: #f1efec;
+  --muted-foreground: #6d6358;
+  --border: #e7e2da;
+  --input: #ffffff;
+  --accent: #e95d0c;
+  --accent-strong: #c2410c;
+  --accent-soft: rgba(233, 93, 12, 0.08);
+  --accent-foreground: #fff7ed;
+  --success: #0a7d55;
+  --danger: #d92d20;
+  --warning: #b45309;
+  --ring: rgba(233, 93, 12, 0.4);
+  --glass: rgba(255, 255, 255, 0.7);
+  --glow: rgba(233, 93, 12, 0.09);
+}
+
+.dark {
+  --background: #0c0a09;
+  --foreground: #f4efe8;
+  --card: #161210;
+  --card-foreground: #f4efe8;
+  --muted: #1e1915;
+  --muted-foreground: #a39b8f;
+  --border: #2b241e;
+  --input: #17130f;
+  --accent: #fb923c;
+  --accent-strong: #f97316;
+  --accent-soft: rgba(251, 146, 60, 0.09);
+  --accent-foreground: #1c0e02;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --ring: rgba(251, 146, 60, 0.45);
+  --glass: rgba(22, 18, 16, 0.72);
+  --glow: rgba(251, 146, 60, 0.07);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-glass: var(--glass);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 8px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Subtle ambient glows used on hero/section backgrounds. */
+.ambient-glow {
+  background:
+    radial-gradient(42rem 24rem at 18% -8%, var(--glow), transparent 60%),
+    radial-gradient(38rem 22rem at 88% 4%, var(--glow), transparent 55%);
+}
+
+.glass-panel {
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Dashed drop-zone border with animated active state. */
+.dropzone-border {
+  border: 2px dashed var(--border);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.dropzone-border[data-active="true"] {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+  box-shadow: 0 0 0 6px var(--accent-soft);
+}
+
+/* Progress bar shimmer. */
+@keyframes fb-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+.progress-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.28),
+    transparent
+  );
+  animation: fb-shimmer 2.2s ease-in-out infinite;
+}
+
+/* Soft pulse for "cooking" states. */
+@keyframes fb-breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.82;
+    transform: scale(0.985);
+  }
+}
+.breathe {
+  animation: fb-breathe 2.6s ease-in-out infinite;
+}
+
+/* Progress bar fill transition. */
+.progress-fill {
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill {
+    transition: none;
+  }
+  .progress-shimmer::after {
+    animation: none;
+    display: none;
+  }
+  .breathe {
+    animation: none;
+  }
+}
