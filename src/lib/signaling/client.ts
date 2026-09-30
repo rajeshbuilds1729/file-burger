@@ -102,8 +102,15 @@ export class SignalingClient {
   }
 
   private async createTransport(): Promise<SignalingTransport> {
-    // Prefer WebSocket; fall back to HTTP polling on any failure.
-    if (this.transport === null && typeof WebSocket !== "undefined") {
+    // Prefer WebSocket; fall back to HTTP polling on any failure. Serverless
+    // hosts (e.g. Vercel) can't serve the WebSocket endpoint — set
+    // NEXT_PUBLIC_SIGNALING_TRANSPORT=http there to skip the probe.
+    const forced = signalingTransportOverride();
+    if (
+      forced !== "http" &&
+      this.transport === null &&
+      typeof WebSocket !== "undefined"
+    ) {
       try {
         const wsTransport = new WebSocketTransport();
         await wsTransport.connect(this.joinParams());
@@ -163,4 +170,11 @@ export class SignalingClient {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** NEXT_PUBLIC_SIGNALING_TRANSPORT: "auto" (default) | "ws" | "http". */
+function signalingTransportOverride(): "auto" | "ws" | "http" {
+  const value = process.env.NEXT_PUBLIC_SIGNALING_TRANSPORT;
+  if (value === "ws" || value === "http") return value;
+  return "auto";
 }
